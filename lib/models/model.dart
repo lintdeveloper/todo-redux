@@ -14,6 +14,18 @@ class Item {
       body: body ?? this.body
     );
   }
+
+  //Desrialise json - Writing data as String
+  Item.fromJson(Map json)
+      : body = json['body'],
+          id = json['id'];
+
+  // Writing the data as Json
+  Map toJson() => {
+    'id': (id as int),
+    'body': body
+  };
+
 }
 
 class AppState {
@@ -23,4 +35,8 @@ class AppState {
 
   AppState.initialState(): items = List.unmodifiable(<Item>[]);
 
+  AppState.fromJson(Map json)
+      : items = (json['items'] as List).map((i) =>  Item.fromJson(i)).toList();
+
+  Map toJson() => {'items': items};
 }

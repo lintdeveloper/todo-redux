@@ -1,5 +1,7 @@
 import 'package:todo_redux/models/model.dart';
 
+
+
 class AddItemAction {
   static int _id = 0;
   final String item;
@@ -18,3 +20,11 @@ class RemoveItemAction {
 }
 
 class RemoveItemsAction {}
+
+class GetItemsAction {}
+
+class LoadedItemsAction {
+  final List<Item> items;
+
+  LoadedItemsAction(this.items);
+}

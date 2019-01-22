@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_redux_dev_tools/flutter_redux_dev_tools.dart';
 import 'package:redux/redux.dart';
+import 'package:redux_dev_tools/redux_dev_tools.dart';
 import 'package:todo_redux/models/model.dart';
 import 'package:todo_redux/redux/actions.dart';
+import 'package:todo_redux/redux/middlewares.dart';
 import 'redux/reducers.dart';
 
 void main() => runApp(MyApp());
@@ -10,9 +13,10 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Store<AppState> store = Store<AppState>(
+    final DevToolsStore<AppState> store = DevToolsStore<AppState>(
       appStateReducer,
       initialState: AppState.initialState(),
+      middleware: [appStateMiddleware],
     );
 
     return StoreProvider<AppState>(
@@ -20,13 +24,21 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Redux Items',
         theme: ThemeData.dark(),
-        home: MyHomePage(),
+        home: StoreBuilder<AppState>(
+          onInit: (store) => store.dispatch(GetItemsAction()),
+          builder: (BuildContext context, Store<AppState> store) =>
+              MyHomePage(store),
+        ),
       ),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
+  final DevToolsStore<AppState> store;
+
+  MyHomePage(this.store);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +54,9 @@ class MyHomePage extends StatelessWidget {
             RemoveItemsButton(viewModel),
           ],
         ),
+      ),
+      drawer: Container(
+        child: ReduxDevTools(store),
       ),
     );
   }
@@ -124,11 +139,11 @@ class _ViewModel {
 
   factory _ViewModel.create(Store<AppState> store) {
     _onAddItem(String body) {
-      store.dispatch(AddItemAction(body)); //Sent to the reducer to update the state
+      store.dispatch(AddItemAction(body));
     }
 
     _onRemoveItem(Item item) {
-      store.dispatch(RemoveItemAction(item)); // Sent to the reducer to update the state
+      store.dispatch(RemoveItemAction(item));
     }
 
     _onRemoveItems() {
